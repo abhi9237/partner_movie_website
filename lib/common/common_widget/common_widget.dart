@@ -9,6 +9,7 @@ import 'package:partner_dashboard_web_app/common/app_font/app_font.dart';
 import 'package:partner_dashboard_web_app/config/route_constant/route_constant.dart';
 import 'package:partner_dashboard_web_app/config/router/app_router.dart';
 
+import '../../config/preference/shared_prefer.dart';
 import '../theme/color_constant.dart';
 
 void showToastMessage(BuildContext context, String message) {
@@ -69,7 +70,8 @@ void showLogoutPopup(BuildContext context) {
               ),
             ),
             onPressed: () async {
-              context.go(RouteConstant.login);
+              await StorageService.clearAll();
+              context.goNamed(RouteConstant.login);
             },
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),

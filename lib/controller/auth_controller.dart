@@ -79,8 +79,9 @@ class AuthController extends GetxController {
         );
         if (response.otpSent == true) {
           if (context.mounted) {
-            context.push(RouteConstant.otpVerification);
             startTimer();
+            context.push(RouteConstant.otpVerification);
+
           }
         } else {
           if (context.mounted) {

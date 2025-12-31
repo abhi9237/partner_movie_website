@@ -9,16 +9,7 @@ class DashboardTabWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 20,vertical: 50),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          color: ColorConstant.whiteColor,
-        ),
-        child: DashBoardTopWidget(),
-      ),
-    );
+    return DashBoardTopWidget();
   }
 }
 
@@ -27,8 +18,13 @@ class DashBoardTopWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 50,vertical: 18),
+      margin: EdgeInsets.only(left: 20,right: 20,top: 20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: ColorConstant.whiteColor,
+      ),
       child: Row(
         // mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

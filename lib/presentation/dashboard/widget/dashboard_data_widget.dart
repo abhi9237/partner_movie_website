@@ -17,57 +17,60 @@ class DashboardDataWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        margin: EdgeInsets.only(bottom: 20),
-        height: context.height * 0.8,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          color: Colors.black,
-          gradient: LinearGradient(
-            colors: [
-              Colors.black.withValues(alpha: 0.5),
-              Colors.grey.withValues(alpha: 0.2),
-              Colors.black.withValues(alpha: 0.1),
-              Colors.grey.withValues(alpha: 0.2),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 20,
-              spreadRadius: 2,
-              color: isMobile(context)
-                  ? Colors.transparent
-                  : Colors.blueAccent.withValues(alpha: 0.1),
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.only(left: 20,right: 20,top: 30),
+        child: Container(
+           height: context.height*0.8,
+          // margin: EdgeInsets.only(top: 20),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: Colors.black,
+            gradient: LinearGradient(
+              colors: [
+                Colors.black.withValues(alpha: 0.5),
+                Colors.grey.withValues(alpha: 0.2),
+                Colors.black.withValues(alpha: 0.1),
+                Colors.grey.withValues(alpha: 0.2),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
-          ],
+            boxShadow: [
+              BoxShadow(
+                blurRadius: 20,
+                spreadRadius: 2,
+                color: isMobile(context)
+                    ? Colors.transparent
+                    : Colors.blueAccent.withValues(alpha: 0.1),
+              ),
+            ],
+          ),
+          child: controller.partnerMoviesList.isNotEmpty
+              ? ListView.builder(
+                  itemCount: controller.partnerMoviesList.length,
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    Results data = controller.partnerMoviesList[index];
+                    return DataWidget(
+                      data: data,
+                      onTap: () {
+                        controller.onTapItem(context, data.id.toString());
+                      },
+                      index: index,
+                      hoverIndex: controller.hoverIndex,
+                      backgroundColor: controller.backGroundColor,
+                      onEnter: (v) {
+                        controller.onEnter(v, index);
+                      },
+                      onExit: (v) {
+                        controller.onExit(v, index);
+                      },
+                    );
+                  },
+                )
+              : NotDataFound(),
         ),
-
-        child:controller.partnerMoviesList.isNotEmpty? ListView.builder(
-          itemCount: controller.partnerMoviesList.length,
-          shrinkWrap: true,
-          itemBuilder: (context, index) {
-            Results data = controller.partnerMoviesList[index];
-            return DataWidget(
-              data: data,
-              onTap: () {
-                controller.onTapItem(context, data.id.toString());
-              },
-              index: index,
-              hoverIndex: controller.hoverIndex,
-              backgroundColor: controller.backGroundColor,
-              onEnter: (v) {
-                controller.onEnter(v, index);
-              },
-              onExit: (v) {
-                controller.onExit(v, index);
-              },
-            );
-          },
-        ):NotDataFound(),
       ),
     );
   }
@@ -135,8 +138,11 @@ class DataWidget extends StatelessWidget {
               SizedBox(width: 5),
               Expanded(
                 child: Text(
-                    data.totalWatchMinutes != 0?
-                  formatMinutesIntoHours(data.totalWatchMinutes.toString()):'0 h',
+                  data.totalWatchMinutes != 0
+                      ? formatMinutesIntoHours(
+                          data.totalWatchMinutes.toString(),
+                        )
+                      : '0 h',
                   style: appStyle(
                     responsive(context, 12, desktop: 14, tablet: 12),
                     color: ColorConstant.whiteColor,

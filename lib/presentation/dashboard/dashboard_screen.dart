@@ -15,7 +15,7 @@ class DashBoardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<DashBoardController>(
-      init: DashBoardController(),
+      init: DashBoardController(context: context),
       builder: (controller) {
         return Scaffold(
           body: SafeArea(

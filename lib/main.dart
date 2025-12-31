@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:partner_dashboard_web_app/config/preference/shared_prefer.dart';
 import 'common/theme/theme.dart';
 import 'config/router/app_router.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
+  setUrlStrategy(PathUrlStrategy());
   await StorageService.init();
 
   runApp(const MyApp());
