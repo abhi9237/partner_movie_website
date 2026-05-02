@@ -1,5 +1,11 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
+import 'package:get/get.dart';
+import 'package:get/get_navigation/src/nav2/get_nav_config.dart';
+import 'package:get/get_navigation/src/nav2/get_router_delegate.dart';
 import 'package:go_router/go_router.dart';
+import 'package:partner_dashboard_web_app/controller/dashboard_controller.dart';
 import 'package:partner_dashboard_web_app/presentation/auth/login/login_screen.dart';
 import 'package:partner_dashboard_web_app/presentation/dashboard/widget/product_detail/product_detail.dart';
 import '../../presentation/auth/otp/otp_screen.dart';
@@ -8,46 +14,63 @@ import '../preference/shared_prefer.dart';
 import '../route_constant/route_constant.dart';
 
 abstract class AppRouter {
-  static GoRouter router =
-  GoRouter(initialLocation: RouteConstant.login,
-      redirect: (BuildContext context, GoRouterState state) async {
+  static GoRouter router = GoRouter(
+    initialLocation: RouteConstant.login,
 
-        final bool isLoggedIn = await StorageService.hasToken();
+    redirect: (BuildContext context, GoRouterState state) async {
+      final bool isLoggedIn = await StorageService.hasToken();
 
-        final isAuthRoute = state.matchedLocation == RouteConstant.login ||
-            state.matchedLocation == RouteConstant.otpVerification;
+      final isAuthRoute =
+          state.matchedLocation == RouteConstant.login ||
+          state.matchedLocation == RouteConstant.otpVerification;
 
-        if (!isLoggedIn && !isAuthRoute) {
-          return RouteConstant.login;
-        }
+      if (!isLoggedIn && !isAuthRoute) {
+        return RouteConstant.login;
+      }
 
-        if (isLoggedIn && isAuthRoute) {
-          return RouteConstant.dashboard;
-        }
+      if (isLoggedIn && isAuthRoute) {
+        Get.find<DashBoardController>().isShowProductDetail.value = false;
+        Get.find<DashBoardController>().update();
+        return RouteConstant.dashboard;
+      }
 
-        // 4. If none of the above conditions are met, allow navigation.
-        return null;
-      },
+      return null;
+    },
 
-
-      routes: [
-    GoRoute(
+    routes: [
+      GoRoute(
         path: RouteConstant.login,
         name: RouteConstant.login,
         builder: (context, state) {
           return LoginScreen();
-        }),
-    GoRoute(
+        },
+      ),
+      GoRoute(
         path: RouteConstant.otpVerification,
         name: RouteConstant.otpVerification,
         builder: (context, state) {
           return OtpScreen();
-        }),
-    GoRoute(
+        },
+      ),
+      GoRoute(
         path: RouteConstant.dashboard,
         name: RouteConstant.dashboard,
         builder: (context, state) {
           return DashBoardScreen();
-        }),
-  ]);
+        },
+      ),
+    ],
+  );
+}
+
+class AppRouterDelegate extends GetDelegate {
+  @override
+  Widget build(BuildContext context) {
+    return Navigator(
+      onPopPage: (route, result) => route.didPop(result),
+      pages: currentConfiguration != null
+          ? [currentConfiguration!.currentPage!]
+          : [GetNavConfig.fromRoute(RouteConstant.dashboard)!.currentPage!],
+    );
+  }
 }

@@ -54,11 +54,13 @@ class AuthController extends GetxController {
     update();
   }
 
-  void resendOtp() {
+  void resendOtp() async {
     _start.value = 30;
     startTimer();
     // For example:
-    // await authRepository.sendOtp(phoneNumber.value);
+    await authRepository.sendOtp(otpController.value.text).whenComplete(() {
+      otpController.value.clear();
+    });
   }
 
   void onTapSelectCountry(CountryCode code) {
@@ -68,9 +70,19 @@ class AuthController extends GetxController {
 
   void onTapLogin(BuildContext context) async {
     if (mobileController.value.text.trim().isEmpty) {
-      showToastMessage(context, 'Please enter valid mobile number');
+      showToastMessage(
+        titleMessage: 'Error',
+        message: 'Please enter valid mobile number',
+        context: context,
+        isError: true,
+      );
     } else if (countryCode.isEmpty) {
-      showToastMessage(context, 'Please select country');
+      showToastMessage(
+        titleMessage: 'Error',
+        message: 'Please select country',
+        context: context,
+        isError: true,
+      );
     } else {
       isLoading.value = true;
       try {
@@ -81,11 +93,17 @@ class AuthController extends GetxController {
           if (context.mounted) {
             startTimer();
             context.push(RouteConstant.otpVerification);
-
           }
         } else {
           if (context.mounted) {
-            showToastMessage(context, response.message);
+            showToastMessage(
+              titleMessage: 'Error',
+              message: response.message,
+              context: context,
+              isError: true,
+            );
+
+            // showToastMessage(context, response.message);
           }
         }
       } catch (e) {
@@ -99,7 +117,13 @@ class AuthController extends GetxController {
 
   void onTapVerify(BuildContext context) async {
     if (otpController.value.length < 6) {
-      showToastMessage(context, 'Please enter valid otp');
+      showToastMessage(
+        titleMessage: 'Error',
+        message: 'Please enter valid otp',
+        context: context,
+        isError: true,
+      );
+      // showToastMessage(context, 'Please enter valid otp');
     } else {
       isLoadingOtp.value = true;
       try {
@@ -115,7 +139,13 @@ class AuthController extends GetxController {
           }
         } else {
           if (context.mounted) {
-            showToastMessage(context, response.message);
+            showToastMessage(
+              titleMessage: 'Error',
+              message: response.message,
+              context: context,
+              isError: true,
+            );
+            // showToastMessage(context, response.message);
           }
         }
       } catch (e) {
@@ -127,7 +157,7 @@ class AuthController extends GetxController {
     }
   }
 
-  void clearController (){
+  void clearController() {
     mobileController.value.clear();
     otpController.value.clear();
   }

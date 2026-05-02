@@ -1,92 +1,202 @@
-import 'dart:developer';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_styled_toast/flutter_styled_toast.dart';
-import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
-import 'package:partner_dashboard_web_app/common/app_font/app_font.dart';
-import 'package:partner_dashboard_web_app/config/route_constant/route_constant.dart';
-import 'package:partner_dashboard_web_app/config/router/app_router.dart';
+import 'package:toastification/toastification.dart';
 
 import '../../config/preference/shared_prefer.dart';
+import '../app_font/app_font.dart';
 import '../theme/color_constant.dart';
-
-void showToastMessage(BuildContext context, String message) {
-  showToast(
-    message,
-    textStyle: appStyle(14),
-    context: context,
-    animation: StyledToastAnimation.slideFromTop,
-    reverseAnimation: StyledToastAnimation.slideToTop,
-    position: StyledToastPosition.top,
-    startOffset: const Offset(0.0, -3.0),
-    reverseEndOffset: const Offset(0.0, -3.0),
-    duration: const Duration(seconds: 4),
-    //Animation duration   animDuration * 2 <= duration
-    animDuration: const Duration(seconds: 1),
-    curve: Curves.elasticOut,
-    reverseCurve: Curves.fastOutSlowIn,
-  );
-}
+import '../../config/route_constant/route_constant.dart';
 
 void showLogoutPopup(BuildContext context) {
   showDialog(
     context: context,
     barrierDismissible: false,
     builder: (BuildContext dialogContext) {
-      return AlertDialog(
-        backgroundColor: ColorConstant.darkColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(
-          'Logout',
-          style: appStyle(
-            20,
-            color: ColorConstant.whiteColor,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        content: Text(
-          'Are you sure you want to log out?',
-          style: appStyle(16, color: Colors.grey.shade300,fontWeight: FontWeight.w400),
-        ),
-        actions: [
-          // "Cancel" button
-          TextButton(
-            onPressed: () {
-              dialogContext.pop();
-            },
-            child: Text(
-              'Cancel',
-              style: appStyle(14, color: Colors.grey.shade400),
+      return Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 420),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(28),
+            gradient: LinearGradient(
+              colors: [
+                ColorConstant.surfaceElevated.withValues(alpha: 0.96),
+                ColorConstant.surfaceStrong.withValues(alpha: 0.98),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
-          ),
-          // "Logout" button
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: ColorConstant.border),
+            boxShadow: [
+              BoxShadow(
+                blurRadius: 36,
+                offset: const Offset(0, 18),
+                color: Colors.black.withValues(alpha: 0.35),
               ),
-            ),
-            onPressed: () async {
-              await StorageService.clearAll();
-              context.goNamed(RouteConstant.login);
-            },
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-              child: Text(
+            ],
+          ),
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: Colors.redAccent.withValues(alpha: 0.16),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Icon(Icons.logout, color: Colors.redAccent),
+              ),
+              const SizedBox(height: 20),
+              Text(
                 'Logout',
                 style: appStyle(
-                  14,
+                  24,
                   color: ColorConstant.whiteColor,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
-            ),
+              const SizedBox(height: 10),
+              Text(
+                'Are you sure you want to log out of your partner account?',
+                style: appStyle(
+                  15,
+                  color: ColorConstant.textSecondary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => dialogContext.pop(),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: const BorderSide(color: ColorConstant.borderMuted),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: Text(
+                        'Cancel',
+                        style: appStyle(
+                          14,
+                          color: ColorConstant.textPrimary,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      onPressed: () async {
+                        await StorageService.clearAll();
+                        if (context.mounted) {
+                          context.goNamed(RouteConstant.login);
+                        }
+                      },
+                      child: Text(
+                        'Logout',
+                        style: appStyle(14, fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       );
     },
+  );
+}
+
+Future<void> showToastMessage({
+  required String titleMessage,
+  required String message,
+  required BuildContext context,
+  required bool isError,
+}) async {
+  toastification.show(
+    borderSide: BorderSide(color: Colors.transparent),
+    context: context,
+    type: isError ? ToastificationType.error : ToastificationType.success,
+    // style: ToastificationStyle.flatColored,
+    autoCloseDuration: const Duration(seconds: 3),
+    title: Text(
+      titleMessage,
+      style: TextStyle(
+        fontSize: 16,
+        color: ColorConstant.whiteColor,
+        fontWeight: FontWeight.w700,
+      ),
+    ),
+    description: Text(
+      message,
+      style: const TextStyle(
+        fontSize: 14,
+        color: ColorConstant.textPrimary,
+        fontWeight: FontWeight.w500,
+      ),
+    ),
+    alignment: Alignment.topCenter,
+    animationDuration: const Duration(milliseconds: 300),
+    animationBuilder: (context, animation, alignment, child) {
+      return FadeTransition(
+        opacity: Tween<double>(begin: 0.3, end: 1.0).animate(animation),
+        child: child,
+      );
+    },
+    icon: isError
+        ? const Icon(Icons.error_outline, color: Colors.white)
+        : const Icon(Icons.check_circle_outline, color: Colors.white),
+    showIcon: true,
+    primaryColor:  Colors.redAccent ,
+    backgroundColor:  Colors.redAccent ,
+    // foregroundColor: Colors.white,
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+    margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+    borderRadius: BorderRadius.circular(14),
+    showProgressBar: true,
+    closeButton: ToastCloseButton(
+      showType: CloseButtonShowType.onHover,
+      buttonBuilder: (context, onClose) {
+        return TextButton.icon(
+          onPressed: onClose,
+          icon: const Icon(Icons.close, size: 18, color: Colors.white),
+          label: const Text(
+            'Close',
+            style: TextStyle(
+              fontSize: 13,
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        );
+      },
+    ),
+    closeOnClick: false,
+    pauseOnHover: true,
+    dragToClose: true,
+    onHoverMouseCursor: SystemMouseCursors.click,
+    callbacks: ToastificationCallbacks(
+      onTap: (toastItem) => debugPrint('Toast ${toastItem.id} tapped'),
+      onCloseButtonTap: (toastItem) =>
+          debugPrint('Toast ${toastItem.id} close button tapped'),
+      onAutoCompleteCompleted: (toastItem) =>
+          debugPrint('Toast ${toastItem.id} auto complete completed'),
+      onDismissed: (toastItem) => debugPrint('Toast ${toastItem.id} dismissed'),
+    ),
   );
 }

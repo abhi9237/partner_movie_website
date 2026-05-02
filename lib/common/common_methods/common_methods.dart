@@ -1,6 +1,11 @@
 import 'dart:developer';
 
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:toastification/toastification.dart';
+
+import '../theme/color_constant.dart';
 
 String formatMinutesIntoHours(String? totalMinutesStr) {
   if (totalMinutesStr == null || totalMinutesStr.isEmpty) {
@@ -25,13 +30,13 @@ String formatMinutesIntoHours(String? totalMinutesStr) {
 Map<String, int> convertToWeekdayMap(Map<String, dynamic> dateData) {
 
   final Map<String, int> weeklyTotals = {
-    "Sun": 0,
     "Mon": 0,
     "Tue": 0,
     "Wed": 0,
     "Thu": 0,
     "Fri": 0,
     "Sat": 0,
+    "Sun": 0,
   };
 
   for (final entry in dateData.entries) {
@@ -70,3 +75,4 @@ String weekdayName(int weekday) {
       return "";
   }
 }
+

@@ -1,11 +1,13 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
+
 import 'package:partner_dashboard_web_app/common/common_widget/shimmer.dart';
+import 'package:partner_dashboard_web_app/common/theme/color_constant.dart';
 import 'package:partner_dashboard_web_app/controller/dashboard_controller.dart';
-import 'package:partner_dashboard_web_app/presentation/dashboard/widget/product_detail/product_detail_chart_widget.dart';
-import 'package:partner_dashboard_web_app/presentation/dashboard/widget/product_detail/product_detail_top_view.dart';
-import 'package:partner_dashboard_web_app/presentation/dashboard/widget/product_detail/product_tab_section.dart';
+
+import 'product_detail_chart_widget.dart';
+import 'product_detail_top_view.dart';
+import 'product_tab_section.dart';
 
 class ProductDetailScreen extends StatelessWidget {
   final DashBoardController controller;
@@ -13,22 +15,29 @@ class ProductDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
+    return Container(
+      margin: const EdgeInsets.only(left: 18),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(32),
+        color: ColorConstant.surface.withValues(alpha: 0.45),
+        border: Border.all(color: ColorConstant.border),
+      ),
       child: Obx(
-        () => controller.isLoadingProductDetail.value == true
-            ? ShimmerLoading(isProductDetailPage: true)
+        () => controller.isLoadingProductDetail.value
+            ? const ShimmerLoading(isProductDetailPage: true)
             : Column(
                 children: [
                   ProductDetailTopView(controller: controller),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 18),
                   Expanded(
                     child: SingleChildScrollView(
                       child: Column(
                         children: [
                           ProductTabSection(controller: controller),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 18),
                           ProductDetailChartWidget(controller: controller),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 24),
                         ],
                       ),
                     ),

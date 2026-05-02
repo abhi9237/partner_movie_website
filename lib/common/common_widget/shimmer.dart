@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get_utils/get_utils.dart';
 
 import '../common_methods/responsive.dart';
+import '../theme/color_constant.dart';
 
 class ShimmerLoading extends StatelessWidget {
   final bool isProductDetailPage;
@@ -11,8 +12,7 @@ class ShimmerLoading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      physics:
-          const NeverScrollableScrollPhysics(), // Disable scrolling on shimmer
+      physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.all(24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -20,53 +20,51 @@ class ShimmerLoading extends StatelessWidget {
           Align(
             alignment: Alignment.topRight,
             child: FadeShimmer(
-              height: 32,
-              width: 200,
-              radius: 8,
-              highlightColor: const Color(0xff222731), // Dark theme highlight
-              baseColor: const Color(0xff161a21), // Dark theme base
+              height: 36,
+              width: 240,
+              radius: 14,
+              highlightColor: ColorConstant.surfaceElevated,
+              baseColor: ColorConstant.surface,
             ),
           ),
-          const SizedBox(height: 30),
-
+          const SizedBox(height: 24),
           FadeShimmer(
-            height: 50,
+            height: 160,
             width: context.width,
-            radius: 20,
-            highlightColor: Color(0xff222731),
-            baseColor: Color(0xff161a21),
+            radius: 28,
+            highlightColor: ColorConstant.surfaceElevated,
+            baseColor: ColorConstant.surface,
           ),
-          const SizedBox(height: 30),
-          if (isProductDetailPage == true)
+          const SizedBox(height: 24),
+          if (isProductDetailPage)
             GridView.builder(
-              padding: EdgeInsets.symmetric(horizontal: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 10),
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: responsive(context, 1, tablet: 2, desktop: 4),
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
                 childAspectRatio: isMobile(context) ? 9 / 2 : 2,
               ),
               itemCount: 4,
               itemBuilder: (context, index) {
                 return const FadeShimmer(
-                  height: 20,
+                  height: 72,
                   width: 200,
                   radius: 20,
-                  highlightColor: Color(0xff222731),
-                  baseColor: Color(0xff161a21),
+                  highlightColor: ColorConstant.surfaceElevated,
+                  baseColor: ColorConstant.surface,
                 );
               },
             ),
-          const SizedBox(height: 30),
-
+          const SizedBox(height: 24),
           FadeShimmer(
-            height: context.height * 0.6,
+            height: context.height * 0.56,
             width: double.infinity,
-            radius: 16,
-            highlightColor: Color(0xff222731),
-            baseColor: Color(0xff161a21),
+            radius: 24,
+            highlightColor: ColorConstant.surfaceElevated,
+            baseColor: ColorConstant.surface,
           ),
         ],
       ),

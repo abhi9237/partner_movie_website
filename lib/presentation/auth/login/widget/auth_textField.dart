@@ -1,10 +1,8 @@
-import 'dart:developer';
-
 import 'package:country_code_picker/country_code_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+
 import 'package:partner_dashboard_web_app/common/app_font/app_font.dart';
 import 'package:partner_dashboard_web_app/common/common_methods/responsive.dart';
 import 'package:partner_dashboard_web_app/common/common_textform_field/common_text_form_filled.dart';
@@ -28,48 +26,81 @@ class AuthTextField extends StatelessWidget {
         FilteringTextInputFormatter.digitsOnly,
         LengthLimitingTextInputFormatter(10),
       ],
-      hintText: 'Mobile number',
+      hintText: 'Enter mobile number',
       controller: textEditingController,
-      prefixIcon: InkWell(
-        onTap: onTapPrefixIcon,
-        child: Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CountryCodePicker(
-                barrierColor: ColorConstant.darkColor,
-                backgroundColor: ColorConstant.darkColor,
+      prefixIcon: Container(
+        padding: const EdgeInsets.only(left: 8, right: 8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Theme(
+              data: Theme.of(context).copyWith(
+                dialogBackgroundColor: ColorConstant.darkColor,
+                canvasColor: ColorConstant.darkColor,
+                textTheme: const TextTheme(
+                  bodyMedium: TextStyle(color: Colors.white),
+                ),
+              ),
+              child: CountryCodePicker(
                 onChanged: onChanged,
-                favorite: ['+39', 'FR'],
                 initialSelection: 'IN',
+                favorite: const ['+91', '+1'],
+
+                // Layout
                 showCountryOnly: false,
                 showOnlyCountryWhenClosed: false,
                 alignLeft: false,
-                searchStyle: appStyle(18, color: ColorConstant.darkColor),
-                dialogTextStyle: appStyle(18, color: ColorConstant.darkColor),
+
+                // Dialog Styling
+                dialogBackgroundColor: ColorConstant.darkColor,
+                barrierColor: Colors.black.withOpacity(0.7),
+
+                // Text Styling
+                textStyle: appStyle(14, color: Colors.white),
+                dialogTextStyle: appStyle(16, color: Colors.white),
+                searchStyle: appStyle(16, color: Colors.white),
+
+                // Search Field Decoration
+                searchDecoration: InputDecoration(
+                  hintText: "Search country",
+                  hintStyle: TextStyle(color: Colors.white54),
+                  filled: true,
+                  fillColor: ColorConstant.darkColor.withOpacity(0.8),
+                  prefixIcon: Icon(Icons.search, color: Colors.white),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+
+                // Dialog Size
                 dialogSize: Size(
                   responsive(
                     context,
-                    context.width * 0.5,
-                    desktop: context.width * 0.5,
-                    tablet: context.width * 0.5,
+                    context.width * 0.9,
+                    desktop: context.width * 0.35,
+                    tablet: context.width * 0.45,
                   ),
                   responsive(
                     context,
-                    context.height * 0.5,
-                    desktop: context.height * 0.5,
-                    tablet: context.height * 0.5,
+                    context.height * 0.6,
+                    desktop: context.height * 0.65,
+                    tablet: context.height * 0.55,
                   ),
                 ),
+
+                // Optional: flag + code color fix
+                flagDecoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
+                ),
               ),
-              Container(
-                height: 30,
-                width: 2,
-                color: ColorConstant.lightGreyColor,
-              ),
-            ],
-          ),
+            ),
+            Container(
+              height: 24,
+              width: 1,
+              color: ColorConstant.borderMuted,
+            ),
+          ],
         ),
       ),
     );

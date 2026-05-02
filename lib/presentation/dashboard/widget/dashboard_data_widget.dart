@@ -1,15 +1,15 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+
 import 'package:get/get.dart';
-import 'package:partner_dashboard_web_app/common/common_widget/no_data_found.dart';
+import 'package:partner_dashboard_web_app/common/app_font/app_font.dart';
+import 'package:partner_dashboard_web_app/common/common_methods/common_methods.dart';
+import 'package:partner_dashboard_web_app/common/common_methods/responsive.dart';
+import 'package:partner_dashboard_web_app/common/theme/color_constant.dart';
 import 'package:partner_dashboard_web_app/controller/dashboard_controller.dart';
 import 'package:partner_dashboard_web_app/model/common/result.dart';
 
-import '../../../common/app_font/app_font.dart';
-import '../../../common/common_methods/common_methods.dart';
-import '../../../common/common_methods/responsive.dart';
-import '../../../common/theme/color_constant.dart';
+import '../../../common/common_widget/no_data_found.dart';
 
 class DashboardDataWidget extends StatelessWidget {
   final DashBoardController controller;
@@ -19,57 +19,40 @@ class DashboardDataWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Padding(
-        padding: const EdgeInsets.only(left: 20,right: 20,top: 30),
+        padding: const EdgeInsets.only(top: 14),
         child: Container(
-           height: context.height*0.8,
-          // margin: EdgeInsets.only(top: 20),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            color: Colors.black,
-            gradient: LinearGradient(
-              colors: [
-                Colors.black.withValues(alpha: 0.5),
-                Colors.grey.withValues(alpha: 0.2),
-                Colors.black.withValues(alpha: 0.1),
-                Colors.grey.withValues(alpha: 0.2),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            boxShadow: [
-              BoxShadow(
-                blurRadius: 20,
-                spreadRadius: 2,
-                color: isMobile(context)
-                    ? Colors.transparent
-                    : Colors.blueAccent.withValues(alpha: 0.1),
-              ),
-            ],
+            borderRadius: BorderRadius.circular(28),
+            color: ColorConstant.surface.withValues(alpha: 0.62),
+            border: Border.all(color: ColorConstant.borderMuted),
           ),
           child: controller.partnerMoviesList.isNotEmpty
-              ? ListView.builder(
-                  itemCount: controller.partnerMoviesList.length,
-                  shrinkWrap: true,
-                  itemBuilder: (context, index) {
-                    Results data = controller.partnerMoviesList[index];
-                    return DataWidget(
-                      data: data,
-                      onTap: () {
-                        controller.onTapItem(context, data.id.toString());
+              ? ClipRRect(
+                  borderRadius: BorderRadius.circular(28),
+                  child: Scrollbar(
+                    thumbVisibility: true,
+                    child: ListView.separated(
+                      padding: const EdgeInsets.all(12),
+                      itemCount: controller.partnerMoviesList.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 10),
+                      itemBuilder: (context, index) {
+                        final Results data = controller.partnerMoviesList[index];
+                        return DataWidget(
+                          data: data,
+                          index: index,
+                          hoverIndex: controller.hoverIndex,
+                          backgroundColor: controller.backGroundColor,
+                          onTap: () {
+                            controller.onTapItem(context, data.id.toString());
+                          },
+                          onEnter: (v) => controller.onEnter(v, index),
+                          onExit: (v) => controller.onExit(v, index),
+                        );
                       },
-                      index: index,
-                      hoverIndex: controller.hoverIndex,
-                      backgroundColor: controller.backGroundColor,
-                      onEnter: (v) {
-                        controller.onEnter(v, index);
-                      },
-                      onExit: (v) {
-                        controller.onExit(v, index);
-                      },
-                    );
-                  },
+                    ),
+                  ),
                 )
-              : NotDataFound(),
+              : const NotDataFound(),
         ),
       ),
     );
@@ -79,7 +62,7 @@ class DashboardDataWidget extends StatelessWidget {
 class DataWidget extends StatelessWidget {
   final Results data;
   final Color? backgroundColor;
-  final int? hoverIndex;
+  final RxInt? hoverIndex;
   final int? index;
   final VoidCallback? onTap;
   final Function(PointerEnterEvent)? onEnter;
@@ -97,82 +80,158 @@ class DataWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: MouseRegion(
-        hitTestBehavior: HitTestBehavior.opaque,
-        onEnter: onEnter,
-        onExit: onExit,
-        child: AnimatedContainer(
-          padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 20),
-          duration: const Duration(milliseconds: 200), // Smooth transition
-          curve: Curves.easeInOut,
-          decoration: BoxDecoration(
-            color: hoverIndex == index ? Colors.transparent : backgroundColor,
-          ),
+    final bool isHovered = hoverIndex?.value == index;
 
+    return MouseRegion(
+      hitTestBehavior: HitTestBehavior.opaque,
+      onEnter: onEnter,
+      onExit: onExit,
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(22),
+            color: isHovered
+                ? ColorConstant.surfaceElevated.withValues(alpha: 0.95)
+                : ColorConstant.surfaceStrong.withValues(alpha: 0.62),
+            border: Border.all(
+              color: isHovered
+                  ? ColorConstant.appColor.withValues(alpha: 0.34)
+                  : ColorConstant.borderMuted,
+            ),
+            boxShadow: isHovered
+                ? [
+                    BoxShadow(
+                      blurRadius: 18,
+                      offset: const Offset(0, 10),
+                      color: ColorConstant.appColor.withValues(alpha: 0.12),
+                    ),
+                  ]
+                : [],
+          ),
           child: Row(
             children: [
-              Expanded(
-                flex: 2,
-                child: Text(
-                  data.title ?? '',
-                  style: appStyle(
-                    responsive(context, 12, desktop: 16, tablet: 16),
-                    color: ColorConstant.whiteColor,
+              Row(
+                children: [
+                  Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(14),
+                      gradient: LinearGradient(
+                        colors: [
+                          ColorConstant.appColor.withValues(alpha: 0.28),
+                          ColorConstant.blueGradient.withValues(alpha: 0.22),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      '${index! + 1}',
+                      style: appStyle(
+                        13,
+                        color: ColorConstant.whiteColor,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
                   ),
-                  overflow: TextOverflow.ellipsis,
+                  const SizedBox(width: 14),
+                  Text(
+                    data.title ?? '',
+                    style: appStyle(
+                      responsive(context, 12, desktop: 15, tablet: 14),
+                      color: ColorConstant.textPrimary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+              SizedBox(width: 30,),
+              Spacer(),
+              Expanded(
+                child: _MetricChip(
+                  value: data.movieDuration ?? 'N/A',
+                  accent: ColorConstant.accentMint,
                 ),
               ),
-              SizedBox(width: 5),
               Expanded(
-                child: Text(
-                  data.movieDuration ?? '',
-                  style: appStyle(
-                    responsive(context, 12, desktop: 14, tablet: 12),
-                    color: ColorConstant.whiteColor,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              SizedBox(width: 5),
-              Expanded(
-                child: Text(
-                  data.totalWatchMinutes != 0
-                      ? formatMinutesIntoHours(
-                          data.totalWatchMinutes.toString(),
-                        )
+                child: _MetricChip(
+                  value: data.totalWatchMinutes != 0
+                      ? formatMinutesIntoHours(data.totalWatchMinutes.toString())
                       : '0 h',
-                  style: appStyle(
-                    responsive(context, 12, desktop: 14, tablet: 12),
-                    color: ColorConstant.whiteColor,
-                  ),
-                  overflow: TextOverflow.ellipsis,
+                  accent: ColorConstant.appColor,
                 ),
               ),
-              SizedBox(width: 5),
               Expanded(
-                child: Text(
-                  '${data.totalWatchMinutes.toString()} m',
-                  style: appStyle(
-                    responsive(context, 12, desktop: 14, tablet: 12),
-                    color: ColorConstant.whiteColor,
-                  ),
-                  overflow: TextOverflow.ellipsis,
+                child: _MetricChip(
+                  value: '${data.totalWatchMinutes.toString()} m',
+                  accent: ColorConstant.lightPinkColor,
                 ),
               ),
-              SizedBox(width: 5),
-              Expanded(
-                child: Text(
-                  data.viewCount.toString(),
-                  style: appStyle(
-                    responsive(context, 12, desktop: 14, tablet: 12),
-                    color: ColorConstant.whiteColor,
+
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _MetricChip(
+                    value: data.viewCount.toString(),
+                    accent: ColorConstant.accentAmber,
                   ),
-                  overflow: TextOverflow.ellipsis,
-                ),
+                  SizedBox(width: 10,),
+                  if(!isMobile(context))
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withValues(alpha: 0.05),
+                      border: Border.all(color: ColorConstant.borderMuted),
+                    ),
+                    child: const Icon(
+                      Icons.arrow_forward_rounded,
+                      size: 16,
+                      color: ColorConstant.textSecondary,
+                    ),
+                  ),
+                ],
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MetricChip extends StatelessWidget {
+  final String value;
+  final Color accent;
+  const _MetricChip({required this.value, required this.accent});
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: accent.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: accent.withValues(alpha: 0.20)),
+        ),
+        child: Text(
+          value,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: appStyle(
+            12,
+            color: ColorConstant.textPrimary,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ),

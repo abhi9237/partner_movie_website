@@ -1,12 +1,12 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:partner_dashboard_web_app/common/app_font/app_font.dart';
-import 'package:partner_dashboard_web_app/controller/auth_controller.dart';
+import 'package:partner_dashboard_web_app/common/common_button/common_button.dart';
+import 'package:partner_dashboard_web_app/common/common_methods/responsive.dart';
+import 'package:partner_dashboard_web_app/common/theme/color_constant.dart';
 import 'package:pinput/pinput.dart';
-import '../../../../common/common_button/common_button.dart';
-import '../../../../common/common_methods/responsive.dart';
-import '../../../../common/theme/color_constant.dart';
+
+import '../../../../controller/auth_controller.dart';
 import '../../login/widget/auth_detail_content.dart';
 import '../../login/widget/auth_header.dart';
 
@@ -16,152 +16,176 @@ class OtpFilledWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: isMobile(context) ? context.width : context.width * 0.35,
-      height: context.height,
+    final pinSize = isMobile(context) ? 46.0 : 56.0;
+    final pinWidth = isMobile(context) ? 40.0 : 56.0;
+
+    final defaultPinTheme = PinTheme(
+      width: pinWidth,
+      height: pinSize,
+      textStyle: appStyle(
+        18,
+        color: ColorConstant.whiteColor,
+        fontWeight: FontWeight.w700,
+      ),
+      decoration: BoxDecoration(
+        color: ColorConstant.surfaceStrong,
+        border: Border.all(color: ColorConstant.borderMuted),
+        borderRadius: BorderRadius.circular(16),
+      ),
+    );
+
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 560),
+      padding: EdgeInsets.all(isMobile(context) ? 18 : 24),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(34),
+        gradient: LinearGradient(
+          colors: [
+            ColorConstant.surfaceStrong.withValues(alpha: 0.96),
+            ColorConstant.surfaceElevated.withValues(alpha: 0.88),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        border: Border.all(color: ColorConstant.borderMuted),
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 34,
+            offset: const Offset(0, 18),
+            color: Colors.black.withValues(alpha: 0.22),
+          ),
+        ],
+      ),
       child: SingleChildScrollView(
         child: ConstrainedBox(
-          constraints: BoxConstraints(minHeight: context.height),
+          constraints: BoxConstraints(minHeight: isMobile(context) ? 0 : context.height * 0.86),
           child: IntrinsicHeight(
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: responsive(context, 20, tablet: 20, desktop: 40),
-              ),
-              child: Container(
-                alignment: Alignment.center,
-                padding: EdgeInsets.symmetric(horizontal: 15),
-                margin: EdgeInsets.symmetric(
-                  vertical: responsive(
-                    context,
-                    0,
-                    tablet: context.height * 0.25,
-                    desktop: context.height * 0.25,
-                  ),
-                  horizontal: responsive(
-                    context,
-                    0,
-                    tablet: 0,
-                    desktop: context.width * 0.01,
-                  ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (isMobile(context)) ...[
+                  const AuthDetailContent(),
+                  const SizedBox(height: 20),
+                ],
+                const AuthHeader(
+                  headerTitle: 'OTP verification',
+                  headerSubTitle: 'Enter the 6 digit code sent to your number',
                 ),
-
-                decoration: BoxDecoration(
-                  color: ColorConstant.darkColor,
-                  boxShadow: [
-                    BoxShadow(
-                      blurRadius: 10,
-                      spreadRadius: 10,
-                      offset: const Offset(0, 5),
-                      color: isMobile(context)
-                          ? Colors.transparent
-                          : Colors.blueAccent.withValues(alpha: 0.1),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Spacer(),
-                    if (isMobile(context))
-                      const Padding(
-                        padding: EdgeInsets.only(bottom: 60),
-                        child: AuthDetailContent(),
-                      ),
-                    AuthHeader(
-                      headerTitle: 'Otp Verification',
-                      headerSubTitle: 'Enter your otp',
-                    ),
-                    const SizedBox(height: 20),
-                    Pinput(
-                      controller: controller.otpController.value,
-                      length: 6,
-                      focusedPinTheme: PinTheme(
-                        width: 56,
-                        height: 56,
-                        textStyle: appStyle(
-                          18,
-                          color: ColorConstant.whiteColor,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: ColorConstant.appColor),
-                          borderRadius: BorderRadius.circular(5),
+                const SizedBox(height: 22),
+                Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(24),
+                    color: ColorConstant.surface.withValues(alpha: 0.65),
+                    border: Border.all(color: ColorConstant.borderMuted),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'Verification code',
+                        style: appStyle(
+                          12,
+                          color: ColorConstant.textSecondary,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
-                      submittedPinTheme: PinTheme(
-                        width: 56,
-                        height: 56,
-                        textStyle: appStyle(
-                          18,
-                          color: ColorConstant.whiteColor,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: ColorConstant.appColor),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                      ),
-                      onCompleted: (v){
-                        controller.onTapVerify(context);
-                      },
-                    ),
-                    const SizedBox(height: 60),
-                    CommonButton(
-                      isLoading: controller.isLoadingOtp,
-                      buttonText: 'Verify',
-                      onTap: () {
-                        controller.onTapVerify(context);
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                    Obx(
-                      ()=> controller.isTimerActive.value
-                          ? RichText(
-                              text: TextSpan(
-                                text: 'Resend OTP in: ',
-                                style: appStyle(
-                                  14,
-                                  color: ColorConstant.whiteColor,
+                      const SizedBox(height: 12),
+                      Center(
+                        child: Pinput(
+                          controller: controller.otpController.value,
+                          length: 6,
+                          defaultPinTheme: defaultPinTheme,
+                          focusedPinTheme: defaultPinTheme.copyWith(
+                            decoration: defaultPinTheme.decoration!.copyWith(
+                              border: Border.all(color: ColorConstant.appColor),
+                              boxShadow: [
+                                BoxShadow(
+                                  blurRadius: 14,
+                                  color: ColorConstant.appColor.withValues(alpha: 0.22),
+                                  offset: const Offset(0, 6),
                                 ),
-                                children: <TextSpan>[
-                                  TextSpan(
-                                    text: controller.timerText
-                                        .split(' ')
-                                        .last, // e.g., "30s"
-                                    style: appStyle(
-                                      14,
-                                      color: ColorConstant.appColor,
-                                    ),
-                                  ),
-                                ],
+                              ],
+                            ),
+                          ),
+                          submittedPinTheme: defaultPinTheme.copyWith(
+                            decoration: defaultPinTheme.decoration!.copyWith(
+                              border: Border.all(color: ColorConstant.appColor),
+                            ),
+                          ),
+                          separatorBuilder: (_) => const SizedBox(width: 8),
+                          onCompleted: (_) => controller.onTapVerify(context),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                CommonButton(
+                  isLoading: controller.isLoadingOtp,
+                  buttonText: 'Verify',
+                  onTap: () {
+                    controller.onTapVerify(context);
+                  },
+                ),
+                const SizedBox(height: 20),
+                Obx(
+                  () => Center(
+                    child: controller.isTimerActive.value
+                        ? RichText(
+                            text: TextSpan(
+                              text: 'Resend OTP in: ',
+                              style: appStyle(
+                                14,
+                                color: ColorConstant.textSecondary,
+                                fontWeight: FontWeight.w600,
                               ),
-                            )
-                          : RichText(
-                              text: TextSpan(
-                                text: "Didn't receive code? ",
+                              children: <TextSpan>[
+                                TextSpan(
+                                  text: controller.timerText.split(' ').last,
+                                  style: appStyle(
+                                    14,
+                                    color: ColorConstant.appColor,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : Wrap(
+                            alignment: WrapAlignment.center,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              Text(
+                                "Didn't receive code? ",
                                 style: appStyle(
                                   14,
-                                  color: ColorConstant.whiteColor,
-                                ), // Style for the normal text
-                                children: <TextSpan>[
-                                  TextSpan(
-                                    text: 'Resend OTP',
-                                    style: appStyle(
-                                      14,
-                                      color: ColorConstant.appColor,
-                                    ),
-                                    recognizer: TapGestureRecognizer()
-                                      ..onTap = () {
-                                        controller.resendOtp();
-                                      },
-                                  ),
-                                ],
+                                  color: ColorConstant.textSecondary,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                            ),
-                    ),
-
-                    const Spacer(),
-                  ],
+                              TextButton(
+                                onPressed: controller.resendOtp,
+                                style: TextButton.styleFrom(
+                                  padding: EdgeInsets.zero,
+                                  minimumSize: const Size(0, 0),
+                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                ),
+                                child: Text(
+                                  'Resend OTP',
+                                  style: appStyle(
+                                    14,
+                                    color: ColorConstant.appColor,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                  ),
                 ),
-              ),
+                const SizedBox(height: 8),
+              ],
             ),
           ),
         ),

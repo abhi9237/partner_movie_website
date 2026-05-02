@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:partner_dashboard_web_app/common/app_font/app_font.dart';
 import 'package:partner_dashboard_web_app/common/common_widget/common_widget.dart';
 import 'package:partner_dashboard_web_app/config/route_constant/route_constant.dart';
 import 'package:partner_dashboard_web_app/model/common/result.dart';
@@ -23,7 +22,7 @@ class DashBoardController extends GetxController {
 
   DashboardRepository dashboardRepository = DashboardRepository();
   Color backGroundColor = Colors.transparent;
-  var hoverIndex = -1.obs;
+  RxInt hoverIndex = (-1).obs;
   var selectedDateRange = Rxn<DateTimeRange>();
   var selectedDrawerIndex = 0.obs;
   RxBool isShowProductDetail = false.obs;
@@ -70,12 +69,24 @@ class DashBoardController extends GetxController {
           final TokenInvalidResponse result = TokenInvalidResponse.fromJson(
             response.data,
           );
-          showToastMessage(context, result.detail ?? '');
+          showToastMessage(
+            titleMessage: 'Error',
+            message: result.detail ?? '',
+            context: context,
+            isError: true,
+          );
+          // showToastMessage(context, result.detail ?? '');
           context.go(RouteConstant.login);
         }
       }
     } catch (e) {
-      showToastMessage(context, 'Server Error');
+      showToastMessage(
+        titleMessage: 'Error',
+        message: 'Server Error',
+        context: context,
+        isError: true,
+      );
+      // showToastMessage(context, 'Server Error');
       log(e.toString());
     } finally {
       isLoading.value = false;
@@ -101,12 +112,24 @@ class DashBoardController extends GetxController {
           final TokenInvalidResponse result = TokenInvalidResponse.fromJson(
             response.data,
           );
-          showToastMessage(context, result.detail ?? '');
+          showToastMessage(
+            titleMessage: 'Error',
+            message: result.detail ?? '',
+            context: context,
+            isError: true,
+          );
+          // showToastMessage(context, result.detail ?? '');
           context.go(RouteConstant.login);
         }
       }
     } catch (e) {
-      showToastMessage(context!, 'Server Error');
+      showToastMessage(
+        titleMessage: 'Error',
+        message:'Server Error',
+        context: context,
+        isError: true,
+      );
+      // showToastMessage(context!, 'Server Error');
       log(e.toString());
     } finally {
       isLoading.value = false;
@@ -158,11 +181,22 @@ class DashBoardController extends GetxController {
           final TokenInvalidResponse result = TokenInvalidResponse.fromJson(
             response.data,
           );
-          showToastMessage(Get.context!, result.detail ?? '');
+          showToastMessage(
+            titleMessage: 'Error',
+            message: result.detail ?? '',
+            context: context,
+            isError: true,
+          );
         }
       }
     } catch (e) {
-      showToastMessage(Get.context!, 'Server Error');
+      showToastMessage(
+        titleMessage: 'Error',
+        message: 'Server Error',
+        context: context,
+        isError: true,
+      );
+      // showToastMessage(Get.context!, 'Server Error');
       log(e.toString());
     } finally {
       isLoadingProductDetail.value = false;
@@ -189,13 +223,13 @@ class DashBoardController extends GetxController {
   }
 
   void onEnter(PointerEnterEvent v, int index) {
-    hoverIndex = index;
+    hoverIndex.value = index;
     backGroundColor = Colors.blueAccent.withOpacity(0.1);
     update();
   }
 
   void onExit(PointerExitEvent v, int index) {
-    hoverIndex = index;
+    hoverIndex.value = -1;
     backGroundColor = Colors.transparent;
     update();
   }

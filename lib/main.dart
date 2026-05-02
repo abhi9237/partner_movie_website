@@ -8,7 +8,6 @@ void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   setUrlStrategy(PathUrlStrategy());
   await StorageService.init();
-
   runApp(const MyApp());
 }
 

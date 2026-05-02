@@ -1,12 +1,13 @@
+import 'dart:ui';
+
 import 'package:custom_image_view/custom_image_view.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
 import 'package:partner_dashboard_web_app/common/app_font/app_font.dart';
+import 'package:partner_dashboard_web_app/common/common_widget/common_widget.dart';
 import 'package:partner_dashboard_web_app/common/image_constant/image_constant.dart';
 import 'package:partner_dashboard_web_app/common/theme/color_constant.dart';
 import 'package:partner_dashboard_web_app/controller/dashboard_controller.dart';
-import '../common_methods/responsive.dart';
-import 'common_widget.dart';
 
 class DrawerWidget extends StatelessWidget {
   final DashBoardController controller;
@@ -15,87 +16,169 @@ class DrawerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-      margin: EdgeInsets.symmetric(horizontal: 30, vertical: 30),
-      width: 300,
+      width: 320,
+      margin: const EdgeInsets.fromLTRB(24, 24, 0, 24),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(32),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+          child: Container(
+            padding: const EdgeInsets.all(22),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(32),
+              gradient: LinearGradient(
+                colors: [
+                  ColorConstant.surfaceElevated.withValues(alpha: 0.84),
+                  ColorConstant.surfaceStrong.withValues(alpha: 0.94),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              border: Border.all(color: ColorConstant.border),
+              boxShadow: [
+                BoxShadow(
+                  blurRadius: 40,
+                  offset: const Offset(0, 20),
+                  color: Colors.black.withValues(alpha: 0.26),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                _BrandHeader(),
+                const SizedBox(height: 18),
+                _StatusCard(controller: controller),
+                const SizedBox(height: 22),
+                Expanded(
+                  child: Column(
+                    children: [
+                      _NavigationItem(
+                        icon: Icons.space_dashboard_rounded,
+                        label: 'Dashboard',
+                        selected: controller.selectedDrawerIndex.value == 0,
+                        onTap: () => controller.onTapSelectDrawer(0),
+                      ),
+                      const SizedBox(height: 12),
+                      _NavigationItem(
+                        icon: Icons.person_rounded,
+                        label: 'Profile',
+                        selected: controller.selectedDrawerIndex.value == 1,
+                        onTap: () {
+                          controller.onTapSelectDrawer(1);
+                          controller.getPartnerDetail();
+                        },
+                      ),
+                      const Spacer(),
+                      _LogoutItem(
+                        onTap: () => showLogoutPopup(context),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BrandHeader extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(20)),
-        color: Colors.black,
+        borderRadius: BorderRadius.circular(24),
         gradient: LinearGradient(
           colors: [
-            Colors.black.withValues(alpha: 0.5),
-            Colors.grey.withValues(alpha: 0.2),
-            Colors.black.withValues(alpha: 0.1),
-            Colors.grey.withValues(alpha: 0.2),
+            ColorConstant.appColor.withValues(alpha: 0.22),
+            ColorConstant.blueGradient.withValues(alpha: 0.14),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        boxShadow: [
-          BoxShadow(
-            blurRadius: 20,
-            spreadRadius: 2,
-            color: isMobile(context)
-                ? Colors.transparent
-                : Colors.blueAccent.withValues(alpha: 0.1),
-          ),
-        ],
+        border: Border.all(color: ColorConstant.borderMuted),
       ),
-
       child: Column(
-        spacing: 20,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          DashBoardAppBar(),
-          SizedBox(height: 20),
-          MenuButtonWidget(
-            selectedIndex: controller.selectedDrawerIndex.value,
-            index: 0,
-            text: 'Dashboard',
-            icon: Icons.dashboard,
-            onTap: () {
-              controller.onTapSelectDrawer(0);
-            },
+          CustomImageView(
+            imagePath: ImageConstant.oceaniekLogo,
+            height: 44,
+            width: 170,
+            fit: BoxFit.contain,
           ),
-          MenuButtonWidget(
-            index: 1,
-            text: 'Profile',
-            icon: Icons.person,
-            selectedIndex: controller.selectedDrawerIndex.value,
-            onTap: () {
-              controller.onTapSelectDrawer(1);
-            },
+          const SizedBox(height: 14),
+          Text(
+            'Partner intelligence',
+            style: appStyle(
+              20,
+              color: ColorConstant.textPrimary,
+              fontWeight: FontWeight.w800,
+            ),
           ),
-          Spacer(),
-          LogOutWidget(text: 'Logout', icon: Icons.logout,onTap: (){
-            showLogoutPopup(context);
-          },),
-          SizedBox(height: 10,)
+          const SizedBox(height: 6),
+          Text(
+            'Track performance, search content, and review analytics in one calm workspace.',
+            style: appStyle(
+              13,
+              color: ColorConstant.textSecondary,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
       ),
     );
   }
 }
 
-class DashBoardAppBar extends StatelessWidget {
-  const DashBoardAppBar({super.key});
+class _StatusCard extends StatelessWidget {
+  final DashBoardController controller;
+  const _StatusCard({required this.controller});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      alignment: Alignment.center,
-      width: context.width,
-      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-
-      child: Row(
-        spacing: 5,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.start,
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: ColorConstant.surface.withValues(alpha: 0.65),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: ColorConstant.borderMuted),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CustomImageView(
-            imagePath: ImageConstant.oceaniekLogo,
-            height: 40,
-            width: 150,
-            fit: BoxFit.contain,
+          Text(
+            'Navigation',
+            style: appStyle(
+              12,
+              color: ColorConstant.textMuted,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            controller.selectedDrawerIndex.value == 0 ? 'Content dashboard' : 'Partner profile',
+            style: appStyle(
+              16,
+              color: ColorConstant.textPrimary,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            controller.selectedDrawerIndex.value == 0
+                ? 'Search the catalogue, filter by date, and inspect watch performance.'
+                : 'Review your partner identity and published details.',
+            style: appStyle(
+              13,
+              color: ColorConstant.textSecondary,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),
@@ -103,56 +186,77 @@ class DashBoardAppBar extends StatelessWidget {
   }
 }
 
-class MenuButtonWidget extends StatelessWidget {
-  final String text;
+class _NavigationItem extends StatelessWidget {
+  final String label;
   final IconData icon;
-  final int index;
-  final int selectedIndex;
-  final VoidCallback? onTap;
-  const MenuButtonWidget({
-    super.key,
-    required this.text,
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _NavigationItem({
+    required this.label,
     required this.icon,
-    this.index = 0,
-    this.selectedIndex = 0,
-    this.onTap,
+    required this.selected,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
-      child: Container(
-        alignment: Alignment.center,
-        width: context.width,
-        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+      borderRadius: BorderRadius.circular(20),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 220),
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: index == selectedIndex
-                ? [
-                    ColorConstant.lightBlueGradient.withValues(alpha: 0.5),
-                    ColorConstant.appColor.withValues(alpha: 0.1),
-                  ]
-                : [
-                    Colors.black.withValues(alpha: 0.5),
-                    Colors.grey.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(20),
+          gradient: selected
+              ? LinearGradient(
+                  colors: [
+                    ColorConstant.appColor.withValues(alpha: 0.28),
+                    ColorConstant.blueGradient.withValues(alpha: 0.18),
                   ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : null,
+          color: selected ? null : ColorConstant.surface.withValues(alpha: 0.45),
+          border: Border.all(
+            color: selected ? ColorConstant.appColor.withValues(alpha: 0.35) : ColorConstant.borderMuted,
           ),
-          borderRadius: BorderRadius.all(Radius.circular(20)),
         ),
         child: Row(
-          spacing: 10,
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(width: 10),
-            Icon(icon, color: ColorConstant.whiteColor),
-            Text(text, style: appStyle(16, color: ColorConstant.whiteColor)),
-            Spacer(),
-            index == selectedIndex
-                ? Icon(Icons.navigate_next)
-                : Icon(Icons.arrow_drop_down_sharp),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: selected
+                    ? Colors.white.withValues(alpha: 0.14)
+                    : Colors.white.withValues(alpha: 0.05),
+              ),
+              child: Icon(
+                icon,
+                size: 20,
+                color: selected ? Colors.white : ColorConstant.textSecondary,
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Text(
+                label,
+                style: appStyle(
+                  15,
+                  color: selected ? ColorConstant.whiteColor : ColorConstant.textPrimary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            Icon(
+              selected ? Icons.arrow_forward_ios_rounded : Icons.keyboard_arrow_right_rounded,
+              size: 16,
+              color: selected ? Colors.white : ColorConstant.textMuted,
+            ),
           ],
         ),
       ),
@@ -160,51 +264,35 @@ class MenuButtonWidget extends StatelessWidget {
   }
 }
 
-class LogOutWidget extends StatelessWidget {
-  final String text;
-  final IconData icon;
-  final int index;
-  final int selectedIndex;
-  final VoidCallback? onTap;
-  const LogOutWidget({
-    super.key,
-    required this.text,
-    required this.icon,
-    this.index = 0,
-    this.selectedIndex = 0,
-    this.onTap,
-  });
+class _LogoutItem extends StatelessWidget {
+  final VoidCallback onTap;
+  const _LogoutItem({required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
       child: Container(
-        alignment: Alignment.center,
-        width: context.width,
-        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors:  [
-              Colors.red.withValues(alpha: 0.5),
-              Colors.red.withValues(alpha: 0.1),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.all(Radius.circular(20)),
+          borderRadius: BorderRadius.circular(20),
+          color: Colors.redAccent.withValues(alpha: 0.16),
+          border: Border.all(color: Colors.redAccent.withValues(alpha: 0.25)),
         ),
         child: Row(
-          spacing: 10,
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(width: 10),
-            Icon(icon, color: ColorConstant.whiteColor),
-            Text(text, style: appStyle(16, color: ColorConstant.whiteColor)),
-            Spacer(),
-            index == selectedIndex
-                ? Icon(Icons.navigate_next)
-                : Icon(Icons.arrow_drop_down_sharp),
+            const Icon(Icons.logout_rounded, color: Colors.redAccent, size: 20),
+            const SizedBox(width: 14),
+            Text(
+              'Logout',
+              style: appStyle(
+                15,
+                color: Colors.redAccent,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ],
         ),
       ),

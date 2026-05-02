@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:partner_dashboard_web_app/common/app_font/app_font.dart';
+import 'package:partner_dashboard_web_app/common/common_methods/responsive.dart';
 import 'package:partner_dashboard_web_app/common/theme/color_constant.dart';
 import '../../core/bar_data/bar_data.dart';
 import '../../core/grouth_data/growth_data.dart';
@@ -16,6 +17,8 @@ class CommonChartWidget extends StatefulWidget {
   final List<PieData>? pieData;
   final GrowthData? growthData;
   final String title;
+  final RxString? selectedStartDate;
+  final RxString? selectedEndDate;
   final double chartRadius;
   final double? height;
   final double? width;
@@ -26,6 +29,8 @@ class CommonChartWidget extends StatefulWidget {
     required this.chartType,
     required this.title,
     this.pieData,
+    this.selectedStartDate,
+    this.selectedEndDate,
     this.barData,
     this.growthData,
     this.width,
@@ -60,8 +65,27 @@ class _CommonChartWidgetState extends State<CommonChartWidget> {
         child: Column(
           children: [
             // Chart Title
-            Text(widget.title, style: appStyle(20, color: Colors.white)),
-            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    widget.title,
+                    style: appStyle(18, color: Colors.white),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+
+                Text(
+                  '${widget.selectedStartDate?.value ?? ''} - ${widget.selectedEndDate?.value ?? ''}',
+                  style: appStyle(
+                    14,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height:20),
             // The Chart itself
             SizedBox(
               height: widget.height ?? context.height * 0.2,
@@ -77,7 +101,6 @@ class _CommonChartWidgetState extends State<CommonChartWidget> {
     );
   }
 
-  /// Builds the appropriate chart based on the [ChartType].
   Widget _buildChart() {
     switch (widget.chartType) {
       case ChartType.pie:

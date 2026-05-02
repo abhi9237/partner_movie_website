@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+import 'package:partner_dashboard_web_app/common/app_font/app_font.dart';
+import 'package:partner_dashboard_web_app/common/common_chart_widget/chart_widget.dart';
+import 'package:partner_dashboard_web_app/common/theme/color_constant.dart';
 import 'package:partner_dashboard_web_app/controller/dashboard_controller.dart';
-import '../../../../common/common_chart_widget/chart_widget.dart';
-import '../../../../common/common_methods/responsive.dart';
-import '../../../../core/bar_data/bar_data.dart';
-import '../../../../core/grouth_data/growth_data.dart';
 
 class ProductDetailChartWidget extends StatelessWidget {
   final DashBoardController controller;
@@ -14,85 +14,106 @@ class ProductDetailChartWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 20),
-      height: context.height * 0.8,
       width: context.width,
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: Colors.black,
+        borderRadius: BorderRadius.circular(28),
         gradient: LinearGradient(
           colors: [
-            Colors.black.withValues(alpha: 0.5),
-            Colors.grey.withValues(alpha: 0.2),
-            Colors.black.withValues(alpha: 0.1),
-            Colors.grey.withValues(alpha: 0.2),
+            ColorConstant.surfaceStrong.withValues(alpha: 0.9),
+            ColorConstant.surfaceElevated.withValues(alpha: 0.72),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        boxShadow: [
-          BoxShadow(
-            blurRadius: 20,
-            spreadRadius: 2,
-            color: isMobile(context)
-                ? Colors.transparent
-                : Colors.blueAccent.withValues(alpha: 0.1),
+        border: Border.all(color: ColorConstant.borderMuted),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Watch time',
+                    style: appStyle(
+                      22,
+                      color: ColorConstant.textPrimary,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Weekly trend for the selected content',
+                    style: appStyle(
+                      13,
+                      color: ColorConstant.textSecondary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+              const Spacer(),
+              _LegendDot(color: ColorConstant.appColor, label: 'Watch minutes'),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Obx(
+            () => CommonChartWidget(
+              selectedStartDate: controller.selectedStartDate,
+              selectedEndDate: controller.selectedEndDate,
+              chartType: ChartType.bar,
+              width: context.width * 0.82,
+              title: 'Watch Time',
+              height: context.height * 0.28,
+              barData: controller.buildWeeklyBarData(
+                controller.weeklyWatchTimeList,
+              ),
+            ),
           ),
         ],
       ),
-      child: Column(
+    );
+  }
+}
+
+class _LegendDot extends StatelessWidget {
+  final Color color;
+  final String label;
+
+  const _LegendDot({required this.color, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(999),
+        color: color.withValues(alpha: 0.12),
+        border: Border.all(color: color.withValues(alpha: 0.22)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(
-            child: CommonChartWidget(
-              chartType: ChartType.bar,
-              width: context.width * 0.8,
-              title: "Weekly Watch Time",
-              height: context.height * 0.28,
-              barData:controller.buildWeeklyBarData(controller.weeklyWatchTimeList),
+          Container(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: color,
             ),
           ),
-          SizedBox(height: 20),
-
-          // CommonChartWidget(
-          //   chartRadius: 120,
-          //   chartType: ChartType.pie,
-          //   title: "Content Distribution",
-          //   pieData: const [
-          //     PieData(name: "Videos", percent: 40, color: Colors.blueAccent),
-          //     PieData(name: "Articles", percent: 30, color: Colors.orangeAccent),
-          //     PieData(name: "Quizzes", percent: 20, color: Colors.greenAccent),
-          //     PieData(name: "Others", percent: 10, color: Colors.redAccent),
-          //   ],
-          // ),
-          // Example 2: CIRCULAR GROWTH CHART
-          CommonChartWidget(
-            height: context.height * 0.2,
-            chartType: ChartType.circularGrowth,
-            title: "Content Views",
-            growthData: GrowthData(
-              title: "Total Content View",
-              value:
-                  double.tryParse(
-                    controller.partnerMovieDetailData.value.viewCount
-                        .toString(),
-                  ) ??
-                  0,
-              color: Colors.purple,
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: appStyle(
+              12,
+              color: ColorConstant.textPrimary,
+              fontWeight: FontWeight.w700,
             ),
-            chartRadius: 60, // Slightly smaller radius
           ),
-
-          // Example 3: Another Growth Chart
-          // CommonChartWidget(
-          //   chartType: ChartType.circularGrowth,
-          //   title: "Server Load",
-          //   growthData: const GrowthData(
-          //     title: "CPU Usage",
-          //     value: 45,
-          //     color: Colors.teal,
-          //   ),
-          //   chartRadius: 70,
-          // ),
         ],
       ),
     );

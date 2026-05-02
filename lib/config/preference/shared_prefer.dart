@@ -45,9 +45,9 @@ class StorageService {
   static Future<void> clearAll() async {
     await _prefs?.clear();
   }
+
   static Future<bool> hasToken() async {
-    final token = _prefs?.getString(_tokenKey);
+    final token = _prefs?.getString(_tokenKey); // Use your actual token key
     return token != null && token.isNotEmpty;
   }
-
 }

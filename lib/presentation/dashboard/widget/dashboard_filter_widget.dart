@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
 import 'package:partner_dashboard_web_app/common/app_font/app_font.dart';
 import 'package:partner_dashboard_web_app/common/common_methods/responsive.dart';
 import 'package:partner_dashboard_web_app/common/theme/color_constant.dart';
@@ -11,34 +11,111 @@ class DashboardFilterWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 35, left: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    final isCompact = isMobile(context) || isTablet(context);
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(28),
+        gradient: LinearGradient(
+          colors: [
+            ColorConstant.surfaceStrong.withValues(alpha: 0.88),
+            ColorConstant.surfaceElevated.withValues(alpha: 0.74),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        border: Border.all(color: ColorConstant.borderMuted),
+      ),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Text(
-              'DashBoard',
-              style: appStyle(20, color: ColorConstant.whiteColor),
-              overflow: TextOverflow.ellipsis,
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Dashboard',
+                      style: appStyle(
+                        responsive(context, 28, desktop: 34, tablet: 30),
+                        color: ColorConstant.textPrimary,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'A clean snapshot of your partner catalogue and watch activity.',
+                      style: appStyle(
+                        responsive(context, 14, desktop: 15, tablet: 14),
+                        color: ColorConstant.textSecondary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (!isCompact)
+                _FilterPill(
+                  icon: Icons.play_circle_outline_rounded,
+                  title: '${controller.partnerMoviesList.length}',
+                  subtitle: 'Videos',
+                  accent: ColorConstant.accentMint,
+                ),
+              if (!isCompact) const SizedBox(width: 12),
+              if (!isCompact)
+                _FilterPill(
+                  icon: Icons.schedule_rounded,
+                  title: controller.dateRangeText == 'Select Date'
+                      ? 'All time'
+                      : controller.dateRangeText,
+                  subtitle: 'Date range',
+                  accent: ColorConstant.accentAmber,
+                  maxWidth: 240,
+                ),
+            ],
           ),
-
-          isMobile(context) || isTablet(context)
+          const SizedBox(height: 18),
+          if (isCompact)
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: [
+                _FilterPill(
+                  icon: Icons.play_circle_outline_rounded,
+                  title: '${controller.partnerMoviesList.length}',
+                  subtitle: 'Videos',
+                  accent: ColorConstant.accentMint,
+                ),
+                _FilterPill(
+                  icon: Icons.schedule_rounded,
+                  title: controller.dateRangeText == 'Select Date'
+                      ? 'All time'
+                      : controller.dateRangeText,
+                  subtitle: 'Date range',
+                  accent: ColorConstant.accentAmber,
+                  maxWidth: 240,
+                ),
+              ],
+            ),
+          const SizedBox(height: 18),
+          isCompact
               ? Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     DashboardCalenderWidget(
                       dateText: controller.dateRangeText,
                       onTap: () {
-                        controller.selectDateRange(context,controller.selectedProductId.value);
+                        controller.selectDateRange(
+                          context,
+                          controller.selectedProductId.value,
+                        );
                       },
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 12),
                     DashboardTextFilledWidget(
-                      isShowClearButton:controller.isShowCloseButton.value ,
+                      isShowClearButton: controller.isShowCloseButton.value,
                       controller: controller.searchController.value,
                       onChanged: controller.onChangedTextFilled,
                       onTapClose: controller.onTapCloseTextFilled,
@@ -46,23 +123,100 @@ class DashboardFilterWidget extends StatelessWidget {
                   ],
                 )
               : Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    DashboardTextFilledWidget(
-                      isShowClearButton: controller.isShowCloseButton.value,
-                      controller: controller.searchController.value,
-                      onChanged: controller.onChangedTextFilled,
-                      onTapClose: controller.onTapCloseTextFilled,
+                    Expanded(
+                      child: DashboardTextFilledWidget(
+                        isShowClearButton: controller.isShowCloseButton.value,
+                        controller: controller.searchController.value,
+                        onChanged: controller.onChangedTextFilled,
+                        onTapClose: controller.onTapCloseTextFilled,
+                      ),
                     ),
+                    const SizedBox(width: 12),
                     DashboardCalenderWidget(
                       dateText: controller.dateRangeText,
                       onTap: () {
-                        controller.selectDateRange(context,controller.selectedProductId.value);
+                        controller.selectDateRange(
+                          context,
+                          controller.selectedProductId.value,
+                        );
                       },
                     ),
                   ],
                 ),
         ],
+      ),
+    );
+  }
+}
+
+class _FilterPill extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Color accent;
+  final double? maxWidth;
+
+  const _FilterPill({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.accent,
+    this.maxWidth,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: maxWidth ?? 180),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: ColorConstant.surface.withValues(alpha: 0.6),
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: accent.withValues(alpha: 0.22)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: accent.withValues(alpha: 0.14),
+              ),
+              child: Icon(icon, color: accent, size: 18),
+            ),
+            const SizedBox(width: 12),
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: appStyle(
+                      14,
+                      color: ColorConstant.textPrimary,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    subtitle,
+                    style: appStyle(
+                      11,
+                      color: ColorConstant.textSecondary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -82,25 +236,31 @@ class DashboardCalenderWidget extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 10),
-        margin: EdgeInsets.only(right: 30),
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        height: 52,
+        width: dateText.toLowerCase() == 'select date' ? 160 : 280,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: ColorConstant.whiteColor,
+          borderRadius: BorderRadius.circular(16),
+          color: ColorConstant.surfaceStrong,
+          border: Border.all(color: ColorConstant.borderMuted),
         ),
-        height: 45,
-        width: dateText.toLowerCase() == 'Select Date'.toLowerCase()
-            ? 150
-            : 250,
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Text(dateText, style: appStyle(12, color: ColorConstant.darkColor)),
-            Icon(
-              Icons.calendar_month,
-              color: ColorConstant.darkColor,
-              size: 20,
+            const Icon(Icons.calendar_month_rounded, color: ColorConstant.appColor, size: 20),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                dateText,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: appStyle(
+                  13,
+                  color: ColorConstant.textPrimary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
+            const Icon(Icons.expand_more_rounded, color: ColorConstant.textSecondary),
           ],
         ),
       ),
@@ -124,48 +284,40 @@ class DashboardTextFilledWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(
-        right: isMobile(context) || isTablet(context) ? 30 : 10,
-      ),
+      height: 52,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: ColorConstant.whiteColor,
-      ),
-      height: 45,
-      width: responsive(
-        context,
-        context.width * 0.5,
-        desktop: 300,
-        tablet: context.width * 0.2,
+        borderRadius: BorderRadius.circular(16),
+        color: ColorConstant.surfaceStrong,
+        border: Border.all(color: ColorConstant.borderMuted),
       ),
       child: TextFormField(
         controller: controller,
         onChanged: onChanged,
-        style: appStyle(12, color: ColorConstant.darkColor),
-        cursorColor: ColorConstant.blueGradient,
+        style: appStyle(
+          14,
+          color: ColorConstant.textPrimary,
+          fontWeight: FontWeight.w600,
+        ),
+        cursorColor: ColorConstant.appColor,
         decoration: InputDecoration(
-          hintText: 'Search Movie....',
+          hintText: 'Search by movie title',
+          prefixIcon: const Icon(Icons.search_rounded, color: ColorConstant.textSecondary),
           suffixIcon: isShowClearButton
               ? GestureDetector(
                   onTap: onTapClose,
-                  child: Icon(Icons.close, color: ColorConstant.darkColor,size: 18,),
+                  child: const Icon(
+                    Icons.close_rounded,
+                    color: ColorConstant.textSecondary,
+                    size: 18,
+                  ),
                 )
-              : SizedBox(),
-          contentPadding: EdgeInsets.only(bottom: 2, left: 15, right: 15),
+              : const SizedBox.shrink(),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           filled: true,
           fillColor: Colors.transparent,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: ColorConstant.whiteColor),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: ColorConstant.whiteColor),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: ColorConstant.whiteColor),
-          ),
+          border: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
         ),
       ),
     );
